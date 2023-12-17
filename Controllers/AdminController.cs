@@ -11,42 +11,72 @@ namespace hermesTour.Controllers
     public class AdminController : ControllerBase
     {
         private readonly IAdminService _adminService;
-        public AdminController(IAdminService adminService){
+        public AdminController(IAdminService adminService)
+        {
             _adminService = adminService;
         }
 
         [HttpGet("GetAll")]
-        public async Task<ActionResult<ServiceResponse<List<GetAdminDto>>>> Get(){
-            return Ok(await _adminService.GetAllAdmins());
+        public async Task<ActionResult<ServiceResponse<List<GetAdminDto>>>> GetAllAdmins()
+        {
+            var response = await _adminService.GetAllAdmins();
+
+            if (!response.Success)
+            {
+                return BadRequest(response.Message); // 400 Bad Request
+            }
+
+            return Ok(response); // 200 OK
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<ServiceResponse<GetAdminDto>>> GetSingle(int id){
-            return Ok(await _adminService.GetAdminById(id));
+        public async Task<ActionResult<ServiceResponse<GetAdminDto>>> GetAdminById(int id)
+        {
+            var response = await _adminService.GetAdminById(id);
+
+            if (!response.Success)
+            {
+                return NotFound(response.Message); // 404 Not Found
+            }
+
+            return Ok(response); // 200 OK
         }
 
         [HttpPost]
-        public async Task<ActionResult<ServiceResponse<List<GetAdminDto>>>> AddAdmin(AddAdminDto newAdmin){
-            return Ok(await _adminService.AddAdmin(newAdmin));
+        public async Task<ActionResult<ServiceResponse<AddAdminDto>>> AddAdmin([FromBody] AddAdminDto newAdmin)
+        {
+            var response = await _adminService.AddAdmin(newAdmin);
+
+            if (!response.Success)
+            {
+                return BadRequest(response.Message); // 400 Bad Request
+            }
+
+            return Ok(response); // 200 OK
         }
 
         [HttpPut]
-        public async Task<ActionResult<ServiceResponse<List<GetAdminDto>>>> UpdateAdmin(UpdateAdminDto updatedAdmin){
+        public async Task<ActionResult<ServiceResponse<GetAdminDto>>> UpdateAdmin(UpdateAdminDto updatedAdmin)
+        {
             var response = await _adminService.UpdateAdmin(updatedAdmin);
-            if(response.Data is null){
-                return NotFound(response);
+            if (!response.Success)
+            {
+                return BadRequest(response.Message); // 400 Bad Request
             }
-           
+
             return Ok(response);
         }
-        
+
         [HttpDelete("{id}")]
-        public async  Task<ActionResult<ServiceResponse<List<GetAdminDto>>>> DeleteAdmin(int id){
+        public async Task<ActionResult<ServiceResponse<List<GetAdminDto>>>> DeleteAdmin(int id)
+        {
             var response = await _adminService.DeleteAdmin(id);
-            if(response.Data is null){
-                return NotFound(response);
+            if (!response.Success)
+            {
+                return BadRequest(response.Message); // 400 Bad Request
             }
-            return Ok(response);
+
+            return Ok(response.Data); // 200 OK
         }
     }
 }

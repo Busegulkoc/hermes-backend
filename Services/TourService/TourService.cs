@@ -7,80 +7,87 @@ namespace hermesTour.Services.TourService
 {
     public class TourService : ITourService
     {
-         private static List<Tour> tourList = new List<Tour>{
-            new Tour{ name = "America"},
-            new Tour{tourId = 1, name = "Italy"},
-            new Tour{tourId = 2, name = "Germany"}
-        };
+
         private readonly IMapper _mapper;
-        public TourService( IMapper mapper){
+        private readonly DataContext _context;
+        public TourService(IMapper mapper, DataContext context)
+        {
             _mapper = mapper;
+            _context = context;
         }
 
-        public async Task<ServiceResponse<List<GetTourDto>>> AddTour(AddTourDto newTour){
+        public async Task<ServiceResponse<List<GetTourDto>>> AddTour(AddTourDto newTour)
+        {
             var serviceResponse = new ServiceResponse<List<GetTourDto>>();
             var tour = _mapper.Map<Tour>(newTour);
-            tour.tourId = tourList.Max(c => c.tourId) +1; // when we use entity framework it will generate the proper id by itself.
-            tourList.Add(tour);
-            serviceResponse.Data = tourList.Select(c => _mapper.Map<GetTourDto>(c)).ToList();
+            _context.Tours.Add(tour);
+            await _context.SaveChangesAsync();
+            serviceResponse.Data = await _context.Tours.Select(c => _mapper.Map<GetTourDto>(c)).ToListAsync();
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<List<GetTourDto>>> GetAllTours(){
+        public async Task<ServiceResponse<List<GetTourDto>>> GetAllTours()
+        {
             var serviceResponse = new ServiceResponse<List<GetTourDto>>();
-            serviceResponse.Data = tourList.Select(c => _mapper.Map<GetTourDto>(c)).ToList();
-            return  serviceResponse;
+            var dbTours = await _context.Tours.ToListAsync();
+            serviceResponse.Data = dbTours.Select(c => _mapper.Map<GetTourDto>(c)).ToList();
+            return serviceResponse;
         }
-        public async Task<ServiceResponse<GetTourDto>> GetTourById(int id){
+        public async Task<ServiceResponse<GetTourDto>> GetTourById(int id)
+        {
             var serviceResponse = new ServiceResponse<GetTourDto>();
-            var tour = tourList.FirstOrDefault(c => c.tourId == id);
-            serviceResponse.Data = _mapper.Map<GetTourDto>(tour);
+            var dbTour = await _context.Tours.FirstOrDefaultAsync(c => c.tourId == id);
+            serviceResponse.Data = _mapper.Map<GetTourDto>(dbTour);
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<GetTourDto>> UpdateTour(UpdateTourDto updatedTour){ 
+        public async Task<ServiceResponse<GetTourDto>> UpdateTour(UpdateTourDto updatedTour)
+        {
             var serviceResponse = new ServiceResponse<GetTourDto>();
 
-            try{
-            var tour = tourList.FirstOrDefault(c => c.tourId == updatedTour.tourId);
-            if(tour is null ){
-                throw new Exception($"Tour with Id '{updatedTour.tourId}' not found.");
-            }
-
-            //_mapper.Map<traveler>(updatedTraveler);
-
-            tour.name = updatedTour.name;
-            tour.date = updatedTour.date;
-            tour.rating = updatedTour.rating;
-            tour.price = updatedTour.price;
-
-            serviceResponse.Data = _mapper.Map<GetTourDto>(tour);
-
-            }
-            catch(Exception ex ){
-                serviceResponse.Success = false;
-                serviceResponse.Message = ex.Message; 
-            }
-            
-            return serviceResponse;
-
-        }
-        public async  Task<ServiceResponse<List<GetTourDto>>> DeleteTour(int id){
-            var serviceResponse = new ServiceResponse<List<GetTourDto>>();
-            try{
-                var tour = tourList.First(c=> c.tourId == id);
-                if(tour is null){
-                    throw new Exception($"Tour with Id'{id}' not found.");
+            try
+            {
+                var tour = await _context.Tours.FirstOrDefaultAsync(c => c.tourId == updatedTour.tourId);
+                if (tour is null)
+                {
+                    throw new Exception($"Tour with Id '{updatedTour.tourId}' not found.");
                 }
-                tourList.Remove(tour);
-                serviceResponse.Data = tourList.Select(c => _mapper.Map<GetTourDto>(c)).ToList();
+
+                //_mapper.Map<traveler>(updatedTraveler);
+
+                tour.name = updatedTour.name;
+                tour.date = updatedTour.date;
+                tour.rating = updatedTour.rating;
+                tour.price = updatedTour.price;
+
+                serviceResponse.Data = _mapper.Map<GetTourDto>(tour);
+                await _context.SaveChangesAsync();
 
             }
-            catch(Exception ex){
+            catch (Exception ex)
+            {
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;
             }
 
+            return serviceResponse;
+
+        }
+        public async Task<ServiceResponse<List<GetTourDto>>> DeleteTour(int id)
+        {
+            var serviceResponse = new ServiceResponse<List<GetTourDto>>();
+            try
+            {
+                var tour = await _context.Tours.FirstAsync(c => c.tourId == id);
+                _context.Tours.Remove(tour);
+                await _context.SaveChangesAsync();
+                serviceResponse.Data = await _context.Tours.Select(c => _mapper.Map<GetTourDto>(c)).ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = ex.Message;
+            }
             return serviceResponse;
         }
 

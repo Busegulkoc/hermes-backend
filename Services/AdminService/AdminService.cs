@@ -2,91 +2,163 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 namespace hermesTour.Services.AdminService
 {
     public class AdminService : IAdminService
     {
-        private static List<Admin> adminList = new List<Admin>{
-            new Admin{ name = "Buse"},
-            new Admin{adminId = 1, name = "Senay"},
-            new Admin{adminId = 2, name = "Alperen"}
-        };
         private readonly IMapper _mapper;
         private readonly DataContext _context;
-        public AdminService( IMapper mapper, DataContext context){
+        public AdminService(IMapper mapper, DataContext context)
+        {
             _mapper = mapper;
             _context = context;
         }
 
-        public async Task<ServiceResponse<List<GetAdminDto>>> AddAdmin(AddAdminDto newAdmin){
-            var serviceResponse = new ServiceResponse<List<GetAdminDto>>();
-            var admin = _mapper.Map<Admin>(newAdmin);
-            // admin.adminId = adminList.Max(c => c.adminId) +1; // when we use entity framework it will generate the proper id by itself.  // bu oldu mu empId ile managerList
-            adminList.Add(admin);
-            serviceResponse.Data = adminList.Select(c => _mapper.Map<GetAdminDto>(c)).ToList();
-            return serviceResponse;
-        }
 
-        public async Task<ServiceResponse<List<GetAdminDto>>> GetAllAdmins(){
-            var serviceResponse = new ServiceResponse<List<GetAdminDto>>();
-            var dbAdmin = await _context.Admin.ToListAsync();
-            serviceResponse.Data = adminList.Select(c => _mapper.Map<GetAdminDto>(c)).ToList();
-            return  serviceResponse;
-        }
-        public async Task<ServiceResponse<GetAdminDto>> GetAdminById(int id){
-            var serviceResponse = new ServiceResponse<GetAdminDto>();
-            var admin = adminList.FirstOrDefault(c => c.adminId == id);
-            serviceResponse.Data = _mapper.Map<GetAdminDto>(admin);
-            return serviceResponse;
-        }
+        // ...
 
-        public async Task<ServiceResponse<GetAdminDto>> UpdateAdmin(UpdateAdminDto updatedAdmin){ 
-            var serviceResponse = new ServiceResponse<GetAdminDto>();
+        public async Task<ServiceResponse<AddAdminDto>> AddAdmin(AddAdminDto newAdmin)
+        {
+            var response = new ServiceResponse<AddAdminDto>();
 
-            try{
-            var admin = adminList.FirstOrDefault(c => c.adminId == updatedAdmin.adminId);
-            if(admin is null ){
-                throw new Exception($"Admin with Id '{updatedAdmin.adminId}' not found.");
+            try
+            {
+                var admin = _mapper.Map<Admin>(newAdmin);
+                _context.Admin.Add(admin);
+
+                await _context.SaveChangesAsync();
+
+                response.Data = _mapper.Map<AddAdminDto>(admin);
+                response.Success = true;
+                return response;
             }
-
-            //_mapper.Map<traveler>(updatedTraveler);
-
-            admin.name = updatedAdmin.name;
-            admin.surname = updatedAdmin.surname;
-            admin.eMail = updatedAdmin.eMail;
-            admin.phoneNumber = updatedAdmin.phoneNumber;
-            admin.salary = updatedAdmin.salary;
-
-            serviceResponse.Data = _mapper.Map<GetAdminDto>(admin);
-
+            catch (Exception ex)
+            {
+                // Hata durumunda isteğe özel bir hata mesajı belirleme
+                response.Message = $"Error adding admin: {ex.Message}";
+                response.Success = false;
+                return response;
             }
-            catch(Exception ex ){
-                serviceResponse.Success = false;
-                serviceResponse.Message = ex.Message; 
-            }
-            
-            return serviceResponse;
-
         }
-        public async  Task<ServiceResponse<List<GetAdminDto>>> DeleteAdmin(int id){
-            var serviceResponse = new ServiceResponse<List<GetAdminDto>>();
-            try{
-                var admin = adminList.First(c=> c.adminId == id);
-                if(admin is null){
-                    throw new Exception($"Admin with Id'{id}' not found.");
+
+        public async Task<ServiceResponse<List<GetAdminDto>>> GetAllAdmins()
+        {
+            var response = new ServiceResponse<List<GetAdminDto>>();
+
+            try
+            {
+                var admins = await _context.Admin.ToListAsync();
+
+                response.Data = _mapper.Map<List<GetAdminDto>>(admins);
+                response.Success = true;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                // Hata durumunda isteğe özel bir hata mesajı belirleme
+                response.Message = $"Error retrieving admins: {ex.Message}";
+                response.Success = false;
+                return response;
+            }
+        }
+        public async Task<ServiceResponse<GetAdminDto>> GetAdminById(int id)
+        {
+            var response = new ServiceResponse<GetAdminDto>();
+
+            try
+            {
+                var admin = await _context.Admin.FindAsync(id);
+
+                if (admin == null)
+                {
+                    response.Message = "Admin not found";
+                    response.Success = false;
+                    return response;
                 }
-                adminList.Remove(admin);
-                serviceResponse.Data = adminList.Select(c => _mapper.Map<GetAdminDto>(c)).ToList();
 
+                response.Data = _mapper.Map<GetAdminDto>(admin);
+                response.Success = true;
+                return response;
             }
-            catch(Exception ex){
-                serviceResponse.Success = false;
-                serviceResponse.Message = ex.Message;
+            catch (Exception ex)
+            {
+                // Hata durumunda isteğe özel bir hata mesajı belirleme
+                response.Message = $"Error retrieving admin: {ex.Message}";
+                response.Success = false;
+                return response;
             }
-
-            return serviceResponse;
         }
 
+        public async Task<ServiceResponse<GetAdminDto>> UpdateAdmin(UpdateAdminDto updatedAdmin)
+        {
+            var response = new ServiceResponse<GetAdminDto>();
+
+            try
+            {
+                var admin = await _context.Admin.FindAsync(updatedAdmin.adminId);
+
+                if (admin == null)
+                {
+                    response.Message = "Admin not found";
+                    response.Success = false;
+                    return response;
+                }
+
+                admin.eMail = updatedAdmin.eMail;
+                admin.name = updatedAdmin.name;
+                admin.surname = updatedAdmin.surname;
+                admin.phoneNumber = updatedAdmin.phoneNumber;
+                admin.salary = updatedAdmin.salary;
+
+                await _context.SaveChangesAsync();
+
+                response.Data = _mapper.Map<GetAdminDto>(admin);
+                response.Success = true;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = $"Error updating admin: {ex.Message}";
+                response.Success = false;
+                return response;
+            }
+        }
+        public async Task<ServiceResponse<List<GetAdminDto>>> DeleteAdmin(int id)
+        {
+            var response = new ServiceResponse<List<GetAdminDto>>();
+
+            try
+            {
+                var adminToDelete = await _context.Admin.FindAsync(id);
+
+                if (adminToDelete == null)
+                {
+                    response.Message = "Admin not found";
+                    response.Success = false;
+                    return response;
+                }
+
+                _context.Admin.Remove(adminToDelete);
+                await _context.SaveChangesAsync();
+
+                var remainingAdmins = await _context.Admin.ToListAsync();
+                response.Data = _mapper.Map<List<GetAdminDto>>(remainingAdmins);
+                response.Success = true;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = $"Error deleting admin: {ex.Message}";
+                response.Success = false;
+                return response;
+            }
+        }
+
+        // Task<ServiceResponse<List<GetAdminDto>>> IAdminService.AddAdmin(AddAdminDto newAdmin)
+        // {
+        //     throw new NotImplementedException();
+        // }
     }
 }

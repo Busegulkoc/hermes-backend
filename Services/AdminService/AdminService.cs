@@ -23,21 +23,21 @@ namespace hermesTour.Services.AdminService
             var serviceResponse = new ServiceResponse<List<GetAdminDto>>();
             var admin = _mapper.Map<Admin>(newAdmin);
             // admin.adminId = adminList.Max(c => c.adminId) +1; // when we use entity framework it will generate the proper id by itself.  // bu oldu mu empId ile managerList
-            adminList.Add(admin);
-            serviceResponse.Data = adminList.Select(c => _mapper.Map<GetAdminDto>(c)).ToList();
+            await _context.Admin.Add(admin);
+            serviceResponse.Data =await _context.Admin.Select(c => _mapper.Map<GetAdminDto>(c)).ToList();
             return serviceResponse;
         }
 
         public async Task<ServiceResponse<List<GetAdminDto>>> GetAllAdmins(){
             var serviceResponse = new ServiceResponse<List<GetAdminDto>>();
             var dbAdmin = await _context.Admin.ToListAsync();
-            serviceResponse.Data = adminList.Select(c => _mapper.Map<GetAdminDto>(c)).ToList();
+            serviceResponse.Data = dbAdmin.Select(c => _mapper.Map<GetAdminDto>(c)).ToList();
             return  serviceResponse;
         }
         public async Task<ServiceResponse<GetAdminDto>> GetAdminById(int id){
             var serviceResponse = new ServiceResponse<GetAdminDto>();
-            var admin = adminList.FirstOrDefault(c => c.adminId == id);
-            serviceResponse.Data = _mapper.Map<GetAdminDto>(admin);
+            var dbAdmin = await _context.Admin.FirstOrDefault(c => c.adminId == id);
+            serviceResponse.Data = _mapper.Map<GetAdminDto>(dbAdmin);
             return serviceResponse;
         }
 
@@ -45,7 +45,7 @@ namespace hermesTour.Services.AdminService
             var serviceResponse = new ServiceResponse<GetAdminDto>();
 
             try{
-            var admin = adminList.FirstOrDefault(c => c.adminId == updatedAdmin.adminId);
+            var admin = await _context.Admin.FirstOrDefault(c => c.adminId == updatedAdmin.adminId);
             if(admin is null ){
                 throw new Exception($"Admin with Id '{updatedAdmin.adminId}' not found.");
             }
@@ -72,12 +72,12 @@ namespace hermesTour.Services.AdminService
         public async  Task<ServiceResponse<List<GetAdminDto>>> DeleteAdmin(int id){
             var serviceResponse = new ServiceResponse<List<GetAdminDto>>();
             try{
-                var admin = adminList.First(c=> c.adminId == id);
+                var admin = await _context.Admin.First(c=> c.adminId == id);
                 if(admin is null){
                     throw new Exception($"Admin with Id'{id}' not found.");
                 }
-                adminList.Remove(admin);
-                serviceResponse.Data = adminList.Select(c => _mapper.Map<GetAdminDto>(c)).ToList();
+                await _context.Admin.Remove(admin);
+                serviceResponse.Data = await _context.Admin.Select(c => _mapper.Map<GetAdminDto>(c)).ToList();
 
             }
             catch(Exception ex){

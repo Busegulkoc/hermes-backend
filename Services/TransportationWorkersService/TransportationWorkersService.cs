@@ -8,86 +8,105 @@ namespace hermesTour.Services.TransportationWorkersService
 {
     public class TransportationWorkersService : ITransportationWorkersService
     {
-        private static List<TransportationWorkers> transportationWorkersList = new List<TransportationWorkers>{
-            new TransportationWorkers{ name = "Buse"},
-            new TransportationWorkers{transportationWorkersId = 1, name = "Senay"},
-            new TransportationWorkers{transportationWorkersId = 2, name = "Alperen"}
-        };
+
         private readonly IMapper _mapper;
-        public TransportationWorkersService( IMapper mapper){
+        private readonly DataContext _context;
+        public TransportationWorkersService(IMapper mapper, DataContext context)
+        {
             _mapper = mapper;
+            _context = context;
         }
 
-        public async Task<ServiceResponse<List<GetTransportationWorkersDto>>> AddTransportationWorkers(AddTransportationWorkersDto newTransportationWorkers){
+        public async Task<ServiceResponse<List<GetTransportationWorkersDto>>> AddTransportationWorkers(AddTransportationWorkersDto newTransportationWorkers)
+        {
             var serviceResponse = new ServiceResponse<List<GetTransportationWorkersDto>>();
             var worker = _mapper.Map<TransportationWorkers>(newTransportationWorkers);
-            worker.transportationWorkersId = transportationWorkersList.Max(c => c.transportationWorkersId) +1; // when we use entity framework it will generate the proper id by itself.  // bu oldu mu empId ile managerList
-            transportationWorkersList.Add(worker);
-            serviceResponse.Data = transportationWorkersList.Select(c => _mapper.Map<GetTransportationWorkersDto>(c)).ToList();
+            _context.TransportationWorkers.Add(worker);
+            await _context.SaveChangesAsync();
+            serviceResponse.Data = await _context.TransportationWorkers.Select(c => _mapper.Map<GetTransportationWorkersDto>(c)).ToListAsync();
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<List<GetTransportationWorkersDto>>> GetAllTransportationWorkerss(){
+        public async Task<ServiceResponse<List<GetTransportationWorkersDto>>> GetAllTransportationWorkerss()
+        {
             var serviceResponse = new ServiceResponse<List<GetTransportationWorkersDto>>();
-            serviceResponse.Data = transportationWorkersList.Select(c => _mapper.Map<GetTransportationWorkersDto>(c)).ToList();
-            return  serviceResponse;
+            var dbTransportationWorkerss = await _context.TransportationWorkers.ToListAsync();
+            serviceResponse.Data = dbTransportationWorkerss.Select(c => _mapper.Map<GetTransportationWorkersDto>(c)).ToList();
+            return serviceResponse;
         }
-        public async Task<ServiceResponse<GetTransportationWorkersDto>> GetTransportationWorkersById(int id){
+        public async Task<ServiceResponse<GetTransportationWorkersDto>> GetTransportationWorkersById(int id)
+        {
             var serviceResponse = new ServiceResponse<GetTransportationWorkersDto>();
-            var worker = transportationWorkersList.FirstOrDefault(c => c.transportationWorkersId == id);
-            serviceResponse.Data = _mapper.Map<GetTransportationWorkersDto>(worker);
+            var dbTransportationWorkers = await _context.TransportationWorkers.FirstOrDefaultAsync(c => c.transportationWorkersId == id);
+            serviceResponse.Data = _mapper.Map<GetTransportationWorkersDto>(dbTransportationWorkers);
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<GetTransportationWorkersDto>> UpdateTransportationWorkers(UpdateTransportationWorkersDto updatedTransportationWorkers){ 
+        public async Task<ServiceResponse<GetTransportationWorkersDto>> UpdateTransportationWorkers(UpdateTransportationWorkersDto updatedTransportationWorkers)
+        {
             var serviceResponse = new ServiceResponse<GetTransportationWorkersDto>();
 
-            try{
-            var worker = transportationWorkersList.FirstOrDefault(c => c.transportationWorkersId == updatedTransportationWorkers.transportationWorkersId);
-            if(worker is null ){
-                throw new Exception($"Transportation Workers with Id '{updatedTransportationWorkers.transportationWorkersId}' not found.");
-            }
-
-            //_mapper.Map<traveler>(updatedTraveler);
-
-            worker.name = updatedTransportationWorkers.name;
-            worker.surname = updatedTransportationWorkers.surname;
-            worker.eMail = updatedTransportationWorkers.eMail;
-            worker.phoneNumber = updatedTransportationWorkers.phoneNumber;
-            worker.salary = updatedTransportationWorkers.salary;
-            worker.transportationVehicleId = updatedTransportationWorkers.transportationVehicleId;
-            worker.type = updatedTransportationWorkers.type;
-            worker.experience = updatedTransportationWorkers.experience;
-
-
-            serviceResponse.Data = _mapper.Map<GetTransportationWorkersDto>(worker);
-
-            }
-            catch(Exception ex ){
-                serviceResponse.Success = false;
-                serviceResponse.Message = ex.Message; 
-            }
-            
-            return serviceResponse;
-
-        }
-        public async  Task<ServiceResponse<List<GetTransportationWorkersDto>>> DeleteTransportationWorkers(int id){
-            var serviceResponse = new ServiceResponse<List<GetTransportationWorkersDto>>();
-            try{
-                var worker = transportationWorkersList.First(c=> c.transportationWorkersId == id);
-                if(worker is null){
-                    throw new Exception($"Transportation Workers with Id'{id}' not found.");
+            try
+            {
+                var worker = await _context.TransportationWorkers.FirstOrDefaultAsync(c => c.transportationWorkersId == updatedTransportationWorkers.transportationWorkersId);
+                if (worker is null)
+                {
+                    throw new Exception($"Transportation Workers with Id '{updatedTransportationWorkers.transportationWorkersId}' not found.");
                 }
-                transportationWorkersList.Remove(worker);
-                serviceResponse.Data = transportationWorkersList.Select(c => _mapper.Map<GetTransportationWorkersDto>(c)).ToList();
+
+                //_mapper.Map<traveler>(updatedTraveler);
+
+                worker.name = updatedTransportationWorkers.name;
+                worker.surname = updatedTransportationWorkers.surname;
+                worker.eMail = updatedTransportationWorkers.eMail;
+                worker.phoneNumber = updatedTransportationWorkers.phoneNumber;
+                worker.salary = updatedTransportationWorkers.salary;
+                worker.transportationVehicleId = updatedTransportationWorkers.transportationVehicleId;
+                worker.type = updatedTransportationWorkers.type;
+                worker.experience = updatedTransportationWorkers.experience;
+
+                await _context.SaveChangesAsync();
+
+                serviceResponse.Data = _mapper.Map<GetTransportationWorkersDto>(worker);
 
             }
-            catch(Exception ex){
+            catch (Exception ex)
+            {
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;
             }
 
             return serviceResponse;
+
+        }
+        public async Task<ServiceResponse<List<GetTransportationWorkersDto>>> DeleteTransportationWorkers(int id)
+        {
+            var serviceResponse = new ServiceResponse<List<GetTransportationWorkersDto>>();
+            try
+            {
+                var workerToDelete = await _context.TransportationWorkers.FindAsync(id);
+
+                if (workerToDelete == null)
+                {
+                    serviceResponse.Message = "Transportation Workers not found";
+                    serviceResponse.Success = false;
+                    return serviceResponse;
+                }
+
+                _context.TransportationWorkers.Remove(workerToDelete);
+                await _context.SaveChangesAsync();
+
+                var remainingWorkers = await _context.TransportationWorkers.ToListAsync();
+                serviceResponse.Data = _mapper.Map<List<GetTransportationWorkersDto>>(remainingWorkers);
+                serviceResponse.Success = true;
+                return serviceResponse;
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Message = $"Error deleting Transportation Workers: {ex.Message}";
+                serviceResponse.Success = false;
+                return serviceResponse;
+            }
         }
 
     }

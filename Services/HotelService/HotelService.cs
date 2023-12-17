@@ -7,79 +7,75 @@ namespace hermesTour.Services.HotelService
 {
     public class HotelService : IHotelService
     {
-         private static List<Hotel> hotelList = new List<Hotel>{
-            new Hotel{ name = "Kalahari"},
-            new Hotel{hotelId = 1, name = "Senay"},
-            new Hotel{hotelId = 2, name = "Buse"}
-        };
+
         private readonly IMapper _mapper;
-        public HotelService( IMapper mapper){
+        private readonly DataContext _context;
+        public HotelService(IMapper mapper, DataContext context)
+        {
             _mapper = mapper;
+            _context = context;
         }
 
-        public async Task<ServiceResponse<List<GetHotelDto>>> AddHotel(AddHotelDto newHotel){
+        public async Task<ServiceResponse<List<GetHotelDto>>> AddHotel(AddHotelDto newHotel)
+        {
             var serviceResponse = new ServiceResponse<List<GetHotelDto>>();
             var hotel = _mapper.Map<Hotel>(newHotel);
-            hotel.hotelId = hotelList.Max(c => c.hotelId) +1; // when we use entity framework it will generate the proper id by itself.
-            hotelList.Add(hotel);
-            serviceResponse.Data = hotelList.Select(c => _mapper.Map<GetHotelDto>(c)).ToList();
+            _context.Hotels.Add(hotel);
+            await _context.SaveChangesAsync();
+            serviceResponse.Data = await _context.Hotels.Select(c => _mapper.Map<GetHotelDto>(c)).ToListAsync();
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<List<GetHotelDto>>> GetAllHotels(){
+        public async Task<ServiceResponse<List<GetHotelDto>>> GetAllHotels()
+        {
             var serviceResponse = new ServiceResponse<List<GetHotelDto>>();
-            serviceResponse.Data = hotelList.Select(c => _mapper.Map<GetHotelDto>(c)).ToList();
-            return  serviceResponse;
+            var dbHotels = await _context.Hotels.ToListAsync();
+            serviceResponse.Data = dbHotels.Select(c => _mapper.Map<GetHotelDto>(c)).ToList();
+            return serviceResponse;
         }
-        public async Task<ServiceResponse<GetHotelDto>> GetHotelById(int id){
+        public async Task<ServiceResponse<GetHotelDto>> GetHotelById(int id)
+        {
             var serviceResponse = new ServiceResponse<GetHotelDto>();
-            var hotel = hotelList.FirstOrDefault(c => c.hotelId == id);
-            serviceResponse.Data = _mapper.Map<GetHotelDto>(hotel);
+            var dbHotel = await _context.Hotels.FirstOrDefaultAsync(c => c.hotelId == id);
+            serviceResponse.Data = _mapper.Map<GetHotelDto>(dbHotel);
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<GetHotelDto>> UpdateHotel(UpdateHotelDto updatedHotel){ 
+        public async Task<ServiceResponse<GetHotelDto>> UpdateHotel(UpdateHotelDto updatedHotel)
+        {
             var serviceResponse = new ServiceResponse<GetHotelDto>();
+            try
+            {
+                Hotel hotel = await _context.Hotels.FirstOrDefaultAsync(c => c.hotelId == updatedHotel.hotelId);
+                hotel.name = updatedHotel.name;
+                hotel.cityCountryId = updatedHotel.cityCountryId;
 
-            try{
-            var hotel = hotelList.FirstOrDefault(c => c.hotelId == updatedHotel.hotelId);
-            if(hotel is null ){
-                throw new Exception($"Hotel with Id '{updatedHotel.hotelId}' not found.");
+                await _context.SaveChangesAsync();
+                serviceResponse.Data = _mapper.Map<GetHotelDto>(hotel);
             }
-
-            //_mapper.Map<traveler>(updatedTraveler);
-
-            hotel.name = updatedHotel.name;
-            hotel.cityCountryId = updatedHotel.cityCountryId;
-           
-
-            serviceResponse.Data = _mapper.Map<GetHotelDto>(hotel);
-
-            }
-            catch(Exception ex ){
-                serviceResponse.Success = false;
-                serviceResponse.Message = ex.Message; 
-            }
-            
-            return serviceResponse;
-
-        }
-        public async  Task<ServiceResponse<List<GetHotelDto>>> DeleteHotel(int id){
-            var serviceResponse = new ServiceResponse<List<GetHotelDto>>();
-            try{
-                var hotel = hotelList.First(c=> c.hotelId == id);
-                if(hotel is null){
-                    throw new Exception($"Hotel with Id'{id}' not found.");
-                }
-                hotelList.Remove(hotel);
-                serviceResponse.Data = hotelList.Select(c => _mapper.Map<GetHotelDto>(c)).ToList();
-
-            }
-            catch(Exception ex){
+            catch (Exception ex)
+            {
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;
             }
+            return serviceResponse;
 
+        }
+        public async Task<ServiceResponse<List<GetHotelDto>>> DeleteHotel(int id)
+        {
+            var serviceResponse = new ServiceResponse<List<GetHotelDto>>();
+            try
+            {
+                Hotel hotel = await _context.Hotels.FirstAsync(c => c.hotelId == id);
+                _context.Hotels.Remove(hotel);
+                await _context.SaveChangesAsync();
+                serviceResponse.Data = await _context.Hotels.Select(c => _mapper.Map<GetHotelDto>(c)).ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = ex.Message;
+            }
             return serviceResponse;
         }
     }

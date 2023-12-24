@@ -26,6 +26,34 @@ namespace hermesTour.Services.TravelerService
             serviceResponse.Data = await _context.Travelers.Select(c => _mapper.Map<GetTravelerDto>(c)).ToListAsync();
             return serviceResponse;
         }
+        public async Task<ServiceResponse<List<GetTravelerDto>>> AddTourToTraveler(int travelerId, int tourId)
+        {
+            var serviceResponse = new ServiceResponse<List<GetTravelerDto>>();
+            try
+            {
+                var traveler = await _context.Travelers.FirstOrDefaultAsync(c => c.travelerId == travelerId);
+                var tour = await _context.Tours.FirstOrDefaultAsync(c => c.tourId == tourId);
+                if (traveler is null || tour is null)
+                {
+                    serviceResponse.Message = "Traveler or Tour not found.";
+                    serviceResponse.Success = false;
+                    return serviceResponse;
+                }
+                traveler.Tours.Add(tour);
+                traveler.wallet -= tour.price;
+                tour.Travelers.Add(traveler);
+
+                await _context.SaveChangesAsync();
+                serviceResponse.Data = await _context.Travelers.Select(c => _mapper.Map<GetTravelerDto>(c)).ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Message = $"Error adding Tour to Traveler: {ex.Message}";
+                serviceResponse.Success = false;
+            }
+            return serviceResponse;
+        }
+
 
         public async Task<ServiceResponse<List<GetTravelerDto>>> GetAllTravelers()
         {
@@ -40,6 +68,49 @@ namespace hermesTour.Services.TravelerService
             var dbTraveler = await _context.Travelers.FirstOrDefaultAsync(c => c.travelerId == id);
             serviceResponse.Data = _mapper.Map<GetTravelerDto>(dbTraveler);
             return serviceResponse;
+        }
+        public async Task<ServiceResponse<GetTravelerDto>> GetTravelerByEmailAndPassword(string email, string password)
+        {
+            var serviceResponse = new ServiceResponse<GetTravelerDto>();
+            try{
+                var dbTraveler = await _context.Travelers.FirstOrDefaultAsync(c => c.eMail == email && c.password == password);
+                if (dbTraveler == null)
+                {
+                    serviceResponse.Message = "Traveler not found. You need to sign in.";
+                    serviceResponse.Success = false;
+                    return serviceResponse;
+                }
+                serviceResponse.Data = _mapper.Map<GetTravelerDto>(dbTraveler);
+                return serviceResponse;
+            }
+            catch(Exception ex){
+                serviceResponse.Message =$"Error getting traveler: {ex.Message}";
+                serviceResponse.Success = false;
+                return serviceResponse;
+            }
+        }
+        public async Task<ServiceResponse<List<GetTourDto>>> GetTourByTravelerId(int id)
+        {
+            var serviceResponse = new ServiceResponse<List<GetTourDto>>();
+            try
+            {
+                var dbTraveler = await _context.Travelers.FirstOrDefaultAsync(c => c.travelerId == id);
+                if (dbTraveler == null)
+                {
+                    serviceResponse.Message = "Traveler not found. You need to sign in.";
+                    serviceResponse.Success = false;
+                    return serviceResponse;
+                }
+                var dbTours = await _context.Travelers.Where(c => c.travelerId == id).SelectMany(c => c.Tours).ToListAsync();
+                serviceResponse.Data = dbTours.Select(c => _mapper.Map<GetTourDto>(c)).ToList();
+                return serviceResponse;
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Message = $"Error getting tours: {ex.Message}";
+                serviceResponse.Success = false;
+                return serviceResponse;
+            }
         }
 
         public async Task<ServiceResponse<GetTravelerDto>> UpdateTraveler(UpdateTravelerDto updatedTraveler)
@@ -56,6 +127,7 @@ namespace hermesTour.Services.TravelerService
 
                 //_mapper.Map<traveler>(updatedTraveler);
 
+                trvlr.password = updatedTraveler.password;
                 trvlr.name = updatedTraveler.name;
                 trvlr.surname = updatedTraveler.surname;
                 trvlr.eMail = updatedTraveler.eMail;
@@ -63,6 +135,36 @@ namespace hermesTour.Services.TravelerService
                 trvlr.wallet = updatedTraveler.wallet;
                 trvlr.vip = updatedTraveler.vip;
                 trvlr.visa = updatedTraveler.visa;
+
+                await _context.SaveChangesAsync();
+
+                serviceResponse.Data = _mapper.Map<GetTravelerDto>(trvlr);
+
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = ex.Message;
+            }
+
+            return serviceResponse;
+
+        }
+        public async Task<ServiceResponse<GetTravelerDto>> UpdateTravelerWallet(int id, int wallet)
+        {
+            var serviceResponse = new ServiceResponse<GetTravelerDto>();
+
+            try
+            {
+                var trvlr = await _context.Travelers.FirstOrDefaultAsync(c => c.travelerId == id);
+                if (trvlr is null)
+                {
+                    serviceResponse.Message = "Traveler not found. You need to sign in.";
+                    serviceResponse.Success = false;
+                    return serviceResponse;
+                }
+                
+                trvlr.wallet += wallet;
 
                 await _context.SaveChangesAsync();
 

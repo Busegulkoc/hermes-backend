@@ -11,8 +11,8 @@ using hermesTour.Data;
 namespace hermesTour.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20231216214349_initial create")]
-    partial class initialcreate
+    [Migration("20231224151937_initialMigration")]
+    partial class initialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -337,6 +337,10 @@ namespace hermesTour.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("password")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

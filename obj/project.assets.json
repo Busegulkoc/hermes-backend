@@ -3943,19 +3943,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\burak\\.nuget\\packages\\": {}
+    "C:\\Users\\BUSE GÜL\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\burak\\OneDrive\\Masaüstü\\bum-backend\\hermes-backend\\hermesTour.csproj",
+      "projectUniqueName": "D:\\Development\\hermesTour\\hermesTour.csproj",
       "projectName": "hermesTour",
-      "projectPath": "C:\\Users\\burak\\OneDrive\\Masaüstü\\bum-backend\\hermes-backend\\hermesTour.csproj",
-      "packagesPath": "C:\\Users\\burak\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\burak\\OneDrive\\Masaüstü\\bum-backend\\hermes-backend\\obj\\",
+      "projectPath": "D:\\Development\\hermesTour\\hermesTour.csproj",
+      "packagesPath": "C:\\Users\\BUSE GÜL\\.nuget\\packages\\",
+      "outputPath": "D:\\Development\\hermesTour\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\burak\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\BUSE GÜL\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -3963,6 +3963,7 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -4027,7 +4028,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.402\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.403\\RuntimeIdentifierGraph.json"
       }
     }
   }

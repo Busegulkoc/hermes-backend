@@ -33,6 +33,15 @@ namespace hermesTour.Services.TourService
             serviceResponse.Data = dbTours.Select(c => _mapper.Map<GetTourDto>(c)).ToList();
             return serviceResponse;
         }
+
+        public async Task<ServiceResponse<List<GetTourDto>>> GetTourByCity(string city)
+        {
+            var serviceResponse = new ServiceResponse<List<GetTourDto>>();
+            var dbTours = await _context.Tours.Where(c => c.CityCountryList.Any(d => d.city == city)).ToListAsync();
+            serviceResponse.Data = dbTours.Select(c => _mapper.Map<GetTourDto>(c)).ToList();
+            return serviceResponse;
+        }
+
         public async Task<ServiceResponse<GetTourDto>> GetTourById(int id)
         {
             var serviceResponse = new ServiceResponse<GetTourDto>();

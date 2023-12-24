@@ -5,7 +5,7 @@
 namespace hermesTour.Migrations
 {
     /// <inheritdoc />
-    public partial class initialcreate : Migration
+    public partial class initialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -79,6 +79,7 @@ namespace hermesTour.Migrations
                 {
                     travelerId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    password = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     eMail = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     surname = table.Column<string>(type: "nvarchar(max)", nullable: false),

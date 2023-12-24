@@ -11,5 +11,6 @@ namespace hermesTour.Dtos.Tour
         public string name { get; set; } 
         public int rating { get; set; }
         public int price { get; set; }
+       
     }
 }

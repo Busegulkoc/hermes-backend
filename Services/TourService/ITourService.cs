@@ -12,5 +12,6 @@ namespace hermesTour.Services.TourService
         Task<ServiceResponse<List<GetTourDto>>> AddTour( AddTourDto newTour);
         Task<ServiceResponse<GetTourDto>> UpdateTour(UpdateTourDto updatedTour);
         Task<ServiceResponse<List<GetTourDto>>> DeleteTour(int id);
+        Task<ServiceResponse<List<GetTourDto>>> GetTourByCity(string city);
     }
 }

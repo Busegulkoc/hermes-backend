@@ -19,6 +19,11 @@ namespace hermesTour.Controllers
         public async Task<ActionResult<ServiceResponse<List<GetTourDto>>>> Get(){
             return Ok(await _tourService.GetAllTours());
         }
+        
+        [HttpGet("getTourByCity")]
+        public async Task<ActionResult<ServiceResponse<List<GetTourDto>>>> GetTourByCity(string city){
+            return Ok(await _tourService.GetTourByCity(city));
+        }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<ServiceResponse<GetTourDto>>> GetSingle(int id){

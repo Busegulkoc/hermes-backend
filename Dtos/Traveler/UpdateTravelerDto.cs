@@ -7,6 +7,7 @@ namespace hermesTour.Dtos.Traveler
 {
     public class UpdateTravelerDto
     {
+        public string password { get; set; }
         public int travelerId { get; set; }
         public string eMail { get; set; }
         public string name { get; set; } 

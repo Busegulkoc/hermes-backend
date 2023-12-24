@@ -39,7 +39,7 @@ builder.Services.AddScoped<IHotelService, HotelService>();
 builder.Services.AddScoped<IManagerService, ManagerService>();
 builder.Services.AddScoped<ITransportationWorkersService, TransportationWorkersService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
-builder.Services.AddDbContext<DataContext>(options => 
+builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();

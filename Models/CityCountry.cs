@@ -12,7 +12,7 @@ namespace hermesTour.Models
         public string country { get; set; } 
         public string currency { get; set; } 
         public List<Hotel> HotelList { get; set; }
-        public List<Tour> Tours { get; set; }
+        //public List<Tour> Tours { get; set; }
         public Manager manager { get; set; }
     }
 }

@@ -9,6 +9,8 @@ namespace hermesTour.Services.TourService
     {
         Task<ServiceResponse<List<GetTourDto>>> GetAllTours();
         Task<ServiceResponse<GetTourDto>> GetTourById(int id);
+        Task<ServiceResponse<List<GetTravelerDto>>> GetTravelerByTourId(int id);
+        Task<ServiceResponse<List<GetCommentDto>>> GetCommentByTourId(int id);
         Task<ServiceResponse<List<GetTourDto>>> AddTour( AddTourDto newTour);
         Task<ServiceResponse<GetTourDto>> UpdateTour(UpdateTourDto updatedTour);
         Task<ServiceResponse<List<GetTourDto>>> DeleteTour(int id);

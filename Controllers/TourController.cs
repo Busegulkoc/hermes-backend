@@ -22,12 +22,36 @@ namespace hermesTour.Controllers
         
         [HttpGet("getTourByCity")]
         public async Task<ActionResult<ServiceResponse<List<GetTourDto>>>> GetTourByCity(string city){
-            return Ok(await _tourService.GetTourByCity(city));
+            var response = await _tourService.GetTourByCity(city);
+            if(response.Data is null){
+                return NotFound(response);
+            }
+            return Ok(response);
         }
-
+        
         [HttpGet("{id}")]
         public async Task<ActionResult<ServiceResponse<GetTourDto>>> GetSingle(int id){
             return Ok(await _tourService.GetTourById(id));
+        }
+        [HttpGet("traveler-by-tourid")]
+        public async Task<ActionResult<ServiceResponse<List<GetTravelerDto>>>> GetTravelerByTourId(int id)
+        {
+            var response = await   _tourService.GetTravelerByTourId(id);
+            if (response.Data is null)
+            {
+                return NotFound(response);
+            }
+            return Ok(response);
+        }
+        [HttpGet("comment-by-tourid")]
+        public async Task<ActionResult<ServiceResponse<List<GetCommentDto>>>> GetCommentByTourId(int id)
+        {
+            var response = await   _tourService.GetCommentByTourId(id);
+            if (response.Data is null)
+            {
+                return NotFound(response);
+            }
+            return Ok(response);
         }
 
         [HttpPost]

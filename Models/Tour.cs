@@ -18,5 +18,11 @@ namespace hermesTour.Models
         public List<Comment> CommentList { get; set; }
         public List<TransportationVehicle> TransportationVehicleList { get; set; }
         public List<CityCountry> CityCountryList { get; set; }
+
+
+
+        //traveler listesi,comment listesi eklendi
+
+
     }
 }

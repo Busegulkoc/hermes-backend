@@ -22,4 +22,7 @@ namespace hermesTour.Models
 
     }
     //istersen default değerler ata !1
+
+
+    //tour ve comment eklendi
 }

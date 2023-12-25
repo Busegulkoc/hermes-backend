@@ -41,7 +41,7 @@ namespace hermesTour.Services.TravelerService
                 }
                 traveler.Tours.Add(tour);
                 traveler.wallet -= tour.price;
-                tour.Travelers.Add(traveler);
+                tour.TravelerList.Add(traveler);
 
                 await _context.SaveChangesAsync();
                 serviceResponse.Data = await _context.Travelers.Select(c => _mapper.Map<GetTravelerDto>(c)).ToListAsync();
@@ -108,6 +108,29 @@ namespace hermesTour.Services.TravelerService
             catch (Exception ex)
             {
                 serviceResponse.Message = $"Error getting tours: {ex.Message}";
+                serviceResponse.Success = false;
+                return serviceResponse;
+            }
+        }
+        public async Task<ServiceResponse<List<GetCommentDto>>> GetCommentByTravelerId(int id)
+        {
+            var serviceResponse = new ServiceResponse<List<GetCommentDto>>();
+            try
+            {
+                var dbTraveler = await _context.Travelers.FirstOrDefaultAsync(c => c.travelerId == id);
+                if (dbTraveler == null)
+                {
+                    serviceResponse.Message = "Traveler not found. You need to sign in.";
+                    serviceResponse.Success = false;
+                    return serviceResponse;
+                }
+                var dbComments = await _context.Travelers.Where(c => c.travelerId == id).SelectMany(c => c.Comments).ToListAsync(); // selectmany ?
+                serviceResponse.Data = dbComments.Select(c => _mapper.Map<GetCommentDto>(c)).ToList();
+                return serviceResponse;
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Message = $"Error getting comments: {ex.Message}";
                 serviceResponse.Success = false;
                 return serviceResponse;
             }

@@ -40,6 +40,11 @@ namespace hermesTour.Services.CommentService
                 comment.traveler = traveler;
                 comment.tour = tour;
                 _context.Comments.Add(comment);
+
+                  //tour un ve traveler ın comment listelerine de bu commenti ekliyoruz:
+                tour.CommentList.Add(comment);
+                traveler.Comments.Add(comment);
+
                 await _context.SaveChangesAsync();
 
                 var comments = await GetAllComments(); // Yeni veriyi ekledikten sonra tüm veriyi getir

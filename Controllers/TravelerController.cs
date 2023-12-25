@@ -41,6 +41,16 @@ namespace hermesTour.Controllers
             }
             return Ok(response);
         }
+        [HttpGet("comment-by-travelerid")]
+        public async Task<ActionResult<ServiceResponse<List<GetCommentDto>>>> GetCommentByTravelerId(int id)
+        {
+            var response = await   _travelerService.GetCommentByTravelerId(id);
+            if (response.Data is null)
+            {
+                return NotFound(response);
+            }
+            return Ok(response);
+        }
 
         [HttpPost]
         public async Task<ActionResult<ServiceResponse<List<GetTravelerDto>>>> AddTraveler(AddTravelerDto newTraveler){

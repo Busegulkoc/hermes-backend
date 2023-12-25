@@ -13,5 +13,7 @@ namespace hermesTour.Models
         public int travelerId { get; set; }
         public Tour tour { get; set; }
         public int tourId { get; set; }
+
+        //traveler ve tour eklendi
     }
 }

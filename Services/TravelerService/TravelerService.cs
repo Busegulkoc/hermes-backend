@@ -232,7 +232,39 @@ namespace hermesTour.Services.TravelerService
                 return serviceResponse;
             }
         }
+        public async Task<ServiceResponse<List<GetTourDto>>> DeleteTourFromTraveler(int travelerId, int tourId)
+        {
+            var serviceResponse = new ServiceResponse<List<GetTourDto>>();
+            try
+            {
+                var traveler = await _context.Travelers.FirstOrDefaultAsync(c => c.travelerId == travelerId);
+                var tour = await _context.Tours.FirstOrDefaultAsync(c => c.tourId == tourId);
+                if (traveler is null || tour is null)
+                {
+                    serviceResponse.Message = "Traveler or Tour not found.";
+                    serviceResponse.Success = false;
+                    return serviceResponse;
+                }
+                if (!traveler.Tours.Any(c => c.tourId == tourId))
+                {
+                    serviceResponse.Message = "This traveler doesn't have this tour.";
+                    serviceResponse.Success = false;
+                    return serviceResponse;
+                }
+                traveler.Tours.Remove(tour);
+                traveler.wallet += tour.price;
+                tour.TravelerList.Remove(traveler);
 
+                await _context.SaveChangesAsync();
+                serviceResponse.Data = traveler.Tours.Select(c => _mapper.Map<GetTourDto>(c)).ToList();
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Message = $"Error deleting Tour from Traveler: {ex.Message}";
+                serviceResponse.Success = false;
+            }
+            return serviceResponse;
+        }
 
 
 

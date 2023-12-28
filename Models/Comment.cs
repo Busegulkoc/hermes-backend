@@ -7,7 +7,10 @@ namespace hermesTour.Models
 {
     public class Comment
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int commentId { get; set; }
+        
         public string commentText { get; set; } 
         public traveler traveler { get; set; }
         public int travelerId { get; set; }

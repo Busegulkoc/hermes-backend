@@ -7,7 +7,10 @@ namespace hermesTour.Models
 {
     public class TransportationWorkers 
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int transportationWorkersId { get; set; }
+        
         public string eMail { get; set; }
         public string name { get; set; } 
         public string surname { get; set; }

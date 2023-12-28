@@ -9,6 +9,7 @@ namespace hermesTour.Dtos.Manager
     {
         public int managerId { get; set; }
         public string eMail { get; set; }
+        public string password { get; set; }
         public string name { get; set; } 
         public string surname { get; set; }
         public string phoneNumber { get; set; }

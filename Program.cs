@@ -18,6 +18,8 @@ global using hermesTour.Dtos.Admin;
 global using hermesTour.Dtos.Manager;
 global using hermesTour.Dtos.Hotel;
 global using hermesTour.Data;
+global using System.ComponentModel.DataAnnotations;
+global using System.ComponentModel.DataAnnotations.Schema;
 
 
 

@@ -97,5 +97,16 @@ namespace hermesTour.Controllers
             }
             return Ok(response);
         }
+        [HttpDelete("delete-tour")]
+        public async Task<ActionResult<ServiceResponse<List<GetTourDto>>>> DeleteTourFromTraveler(int travelerId, int tourId)
+        {
+            var response = await _travelerService.DeleteTourFromTraveler(travelerId, tourId);
+            if (response.Data is null)
+            {
+                return NotFound(response);
+            }
+            return Ok(response);
+        }
+
     }
 }

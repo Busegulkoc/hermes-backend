@@ -24,7 +24,11 @@ namespace hermesTour.Controllers
         public async Task<ActionResult<ServiceResponse<GetManagerDto>>> GetSingle(int id){
             return Ok(await _managerService.GetManagerById(id));
         }
-
+        [HttpGet("by-email-password")]
+        public async Task<ActionResult<ServiceResponse<GetManagerDto>>> GetSingleByEmailAndPassword(string email, string password){
+            return Ok(await _managerService.GetManagerByEmailAndPassword(email, password));
+        }
+        
         [HttpPost]
         public async Task<ActionResult<ServiceResponse<List<GetManagerDto>>>> AddManager(AddManagerDto newManager){
             return Ok(await _managerService.AddManager(newManager));

@@ -40,7 +40,25 @@ namespace hermesTour.Services.ManagerService
             serviceResponse.Data = _mapper.Map<GetManagerDto>(dbManager);
             return serviceResponse;
         }
-
+        public async Task<ServiceResponse<GetManagerDto>> GetManagerByEmailAndPassword(string email, string password)
+        {
+            var serviceResponse = new ServiceResponse<GetManagerDto>();
+            try{
+                var dbManager = await _context.Manager.FirstOrDefaultAsync(c => c.eMail == email && c.password == password);
+                if(dbManager is null){
+                    serviceResponse.Message = "Manager not found.";
+                    serviceResponse.Success = false;
+                    return serviceResponse;
+                }
+                serviceResponse.Data = _mapper.Map<GetManagerDto>(dbManager);
+                return serviceResponse;
+            }
+            catch(Exception ex){
+                serviceResponse.Message = ex.Message;
+                serviceResponse.Success = false;
+                return serviceResponse;
+            }
+        }    
         public async Task<ServiceResponse<GetManagerDto>> UpdateManager(UpdateManagerDto updatedManager)
         {
             var serviceResponse = new ServiceResponse<GetManagerDto>();
@@ -58,6 +76,7 @@ namespace hermesTour.Services.ManagerService
                 manager.name = updatedManager.name;
                 manager.surname = updatedManager.surname;
                 manager.eMail = updatedManager.eMail;
+                manager.password = updatedManager.password;
                 manager.phoneNumber = updatedManager.phoneNumber;
                 manager.salary = updatedManager.salary;
                 manager.cityCountryId = updatedManager.cityCountryId;

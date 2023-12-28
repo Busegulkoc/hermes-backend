@@ -5,7 +5,7 @@
 namespace hermesTour.Migrations
 {
     /// <inheritdoc />
-    public partial class updatefirst : Migration
+    public partial class updateddb3 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

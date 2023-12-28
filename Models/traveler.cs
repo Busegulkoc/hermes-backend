@@ -8,7 +8,10 @@ namespace hermesTour.Models
 {
     public class traveler
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int travelerId { get; set; }
+        
         public string password { get; set; }
         public string eMail { get; set; }
         public string name { get; set; } 

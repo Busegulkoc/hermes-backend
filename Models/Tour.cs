@@ -8,11 +8,15 @@ namespace hermesTour.Models
 {
     public class Tour
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int tourId { get; set; }
-        public string date { get; set; } //date tipi?
+        
+        public DateTime date { get; set; } 
         public string name { get; set; } 
         public int rating { get; set; }
         public int price { get; set; }
+        public string description { get; set; }
         public List<traveler> TravelerList { get; set; }
         public List<Hotel> HotelList { get; set; }
         public List<Comment> CommentList { get; set; }
@@ -21,7 +25,7 @@ namespace hermesTour.Models
 
 
 
-        //traveler listesi,comment listesi eklendi
+        //traveler listesi,comment listesi eklendi, tran. eklendi, citycountry eklendi, hotel eklendi
 
 
     }

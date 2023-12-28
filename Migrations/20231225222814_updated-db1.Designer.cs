@@ -11,8 +11,8 @@ using hermesTour.Data;
 namespace hermesTour.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20231224205921_update_first")]
-    partial class updatefirst
+    [Migration("20231225222814_updated-db1")]
+    partial class updateddb1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

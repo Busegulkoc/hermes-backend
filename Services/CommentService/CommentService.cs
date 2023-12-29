@@ -42,6 +42,14 @@ namespace hermesTour.Services.CommentService
                 _context.Comments.Add(comment);
 
                   //tour un ve traveler ın comment listelerine de bu commenti ekliyoruz:
+                if (tour.CommentList == null)
+                {
+                    tour.CommentList = new List<Comment>();
+                }
+                if (traveler.Comments == null)
+                {
+                    traveler.Comments = new List<Comment>();
+                }
                 tour.CommentList.Add(comment);
                 traveler.Comments.Add(comment);
 

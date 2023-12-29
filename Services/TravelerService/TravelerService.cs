@@ -39,6 +39,12 @@ namespace hermesTour.Services.TravelerService
                     serviceResponse.Success = false;
                     return serviceResponse;
                 }
+                if(traveler.Tours == null){
+                    traveler.Tours = new List<Tour>();
+                }
+                if(tour.TravelerList == null){
+                    tour.TravelerList = new List<traveler>();
+                }
                 traveler.Tours.Add(tour);
                 traveler.wallet -= tour.price;
                 tour.TravelerList.Add(traveler);

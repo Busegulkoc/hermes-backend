@@ -25,9 +25,9 @@ namespace hermesTour.Services.TourService
             var dbVehicle = await _context.TransportationVehicle.ToListAsync();
             var dbHotel = await _context.Hotels.ToListAsync();
 
-            var matchingCityCountries = dbCityCountry.Where(cc => newTour.CityCountryList.Any(tc => tc.city.ToLower() == cc.city.ToLower() && tc.country.ToLower() == cc.country.ToLower())).ToList();   
-            var matchingVehicles = dbVehicle.Where(v => newTour.TransportationVehicleList.Any(tv => tv.code.ToLower() == v.code.ToLower())).ToList();
-            var matchingHotels = dbHotel.Where(h => newTour.HotelList.Any(hl => hl.name.ToLower() == h.name.ToLower())).ToList();
+            var matchingCityCountries = dbCityCountry.Where(c => newTour.cityCountryIdList.Any(cc => cc == c.cityCountryId)).ToList();
+            var matchingVehicles = dbVehicle.Where(v => newTour.TransportationVehicleIdList.Any(vl => vl == v.transportationVehicleId)).ToList();
+            var matchingHotels = dbHotel.Where(h => newTour.HotelIdList.Any(hl => hl == h.hotelId)).ToList();
 
             if(matchingCityCountries.Count == 0)
             {
@@ -61,18 +61,33 @@ namespace hermesTour.Services.TourService
             for(int i = 0; i < matchingCityCountries.Count; i++){  
                 if(matchingCityCountries[i].Tours == null){
                     matchingCityCountries[i].Tours = new List<Tour>();
+                    if(matchingCityCountries[i].Tours.Contains(tour)){
+                        serviceResponse.Message = "Tour already exists.";
+                        serviceResponse.Success = false;
+                        return serviceResponse;
+                    }
                    matchingCityCountries[i].Tours.Add(tour); 
             }
             }
             for(int i = 0; i < matchingVehicles.Count; i++){  
                 if(matchingVehicles[i].Tours == null){
                     matchingVehicles[i].Tours = new List<Tour>();
+                    if(matchingVehicles[i].Tours.Contains(tour)){
+                        serviceResponse.Message = "Tour already exists.";
+                        serviceResponse.Success = false;
+                        return serviceResponse;
+                    }
                    matchingVehicles[i].Tours.Add(tour);
                 }   
             }
             for(int i = 0; i < matchingHotels.Count; i++){  
                 if(matchingHotels[i].Tours == null){
                     matchingHotels[i].Tours = new List<Tour>();
+                    if(matchingHotels[i].Tours.Contains(tour)){
+                        serviceResponse.Message = "Tour already exists.";
+                        serviceResponse.Success = false;
+                        return serviceResponse;
+                    }
                    matchingHotels[i].Tours.Add(tour); 
                 }
             }
@@ -267,7 +282,31 @@ namespace hermesTour.Services.TourService
             }
             return serviceResponse;
         }
-        
+        public async Task<ServiceResponse<List<GetTourDto>>> GetTourByCityDatePeopleNumber(string city, DateTime date, int peopleNumber)
+        {
+            var serviceResponse = new ServiceResponse<List<GetTourDto>>();
+            try
+            {
+
+                var dbTours = await _context.Tours.Where(c => c.CityCountryList.Any(d => d.city == city) && c.date == date && c.TransportationVehicleList.First().capacity >= peopleNumber).ToListAsync();
+                if (dbTours is null)
+                {
+                    serviceResponse.Message = "Tour not found.";
+                    serviceResponse.Success = false;
+                    return serviceResponse;
+                }
+                serviceResponse.Data = dbTours.Select(c => _mapper.Map<GetTourDto>(c)).ToList();
+                return serviceResponse;
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Message = $"Error finding Tour: {ex.Message}";
+                serviceResponse.Success = false;
+
+            }
+            return serviceResponse;
+        }
+    
         public async Task<ServiceResponse<GetTourDto>> UpdateTour(UpdateTourDto updatedTour)
         {
             var serviceResponse = new ServiceResponse<GetTourDto>();
@@ -301,12 +340,44 @@ namespace hermesTour.Services.TourService
             return serviceResponse;
 
         }
+        public async Task<ServiceResponse<GetTourDto>> UpdateTourDescription(int id, string description)
+        {
+            var serviceResponse = new ServiceResponse<GetTourDto>();
+
+            try
+            {
+                var tour = await _context.Tours.FirstOrDefaultAsync(c => c.tourId == id);
+                if (tour is null)
+                 {
+                serviceResponse.Message = "Tour not found.";
+                serviceResponse.Success = false;
+                return serviceResponse;
+            }
+                tour.description = description;
+                serviceResponse.Data = _mapper.Map<GetTourDto>(tour);
+                await _context.SaveChangesAsync();
+
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = ex.Message;
+            }
+            return serviceResponse;
+        }
+                
         public async Task<ServiceResponse<List<GetTourDto>>> DeleteTour(int id)
         {
             var serviceResponse = new ServiceResponse<List<GetTourDto>>();
             try
             {
                 var tour = await _context.Tours.FirstAsync(c => c.tourId == id);
+                if (tour is null)
+                {
+                    serviceResponse.Message = "Tour not found.";
+                    serviceResponse.Success = false;
+                    return serviceResponse;
+                }
                 _context.Tours.Remove(tour);
                 await _context.SaveChangesAsync();
                 serviceResponse.Data = await _context.Tours.Select(c => _mapper.Map<GetTourDto>(c)).ToListAsync();
@@ -317,7 +388,7 @@ namespace hermesTour.Services.TourService
                 serviceResponse.Message = ex.Message;
             }
             return serviceResponse;
-        }
 
+        }
     }
 }

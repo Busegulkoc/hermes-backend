@@ -31,9 +31,16 @@ namespace hermesTour.Services.TravelerService
             var serviceResponse = new ServiceResponse<List<GetTravelerDto>>();
             try
             {
-                var traveler = await _context.Travelers.FirstOrDefaultAsync(c => c.travelerId == travelerId);
-                var tour = await _context.Tours.FirstOrDefaultAsync(c => c.tourId == tourId);
+                 var traveler = await _context.Travelers
+            .Include(t => t.Tours)
+            .FirstOrDefaultAsync(c => c.travelerId == travelerId);
+
+        var tour = await _context.Tours
+            .Include(t => t.TravelerList)
+            .FirstOrDefaultAsync(c => c.tourId == tourId);
+
                 if (traveler is null || tour is null)
+
                 {
                     serviceResponse.Message = "Traveler or Tour not found.";
                     serviceResponse.Success = false;
@@ -45,8 +52,14 @@ namespace hermesTour.Services.TravelerService
                 if(tour.TravelerList == null){
                     tour.TravelerList = new List<traveler>();
                 }
+               if (traveler.Tours.Any(c => c.tourId == tourId))
+        {
+            serviceResponse.Message = "This traveler already has this tour.";
+            serviceResponse.Success = false;
+            return serviceResponse;
+        }
                 traveler.Tours.Add(tour);
-                traveler.wallet -= tour.price;
+               // traveler.wallet -= tour.price;
                 tour.TravelerList.Add(traveler);
 
                 await _context.SaveChangesAsync();
@@ -54,12 +67,57 @@ namespace hermesTour.Services.TravelerService
             }
             catch (Exception ex)
             {
-                serviceResponse.Message = $"Error adding Tour to Traveler: {ex.Message}";
+                serviceResponse.Message = $"Error adding Tour to Traveler: {ex.Message}\n{ex.StackTrace}";
                 serviceResponse.Success = false;
             }
             return serviceResponse;
         }
-
+         /*if ( traveler.Tours.Any(c => c.tourId == tourId)) 49
+                {
+                    serviceResponse.Message = "This traveler already has this tour.";
+                    serviceResponse.Success = false;
+                    return serviceResponse;
+                }
+             
+               /* if (traveler.wallet < tour.price)
+                {
+                    serviceResponse.Message = "Not enough money in wallet.";
+                    serviceResponse.Success = false;
+                    return serviceResponse;
+                }*/
+       /* public async Task<ServiceResponse<List<GetTourDto>>> AddFavoriteTourToTraveler(int travelerId, int tourId)
+        {
+            var serviceResponse = new ServiceResponse<List<GetTourDto>>();
+            try
+            {
+                var traveler = await _context.Travelers.FirstOrDefaultAsync(c => c.travelerId == travelerId);
+                var tour = await _context.Tours.FirstOrDefaultAsync(c => c.tourId == tourId);
+                if (traveler is null || tour is null)
+                {
+                    serviceResponse.Message = "Traveler or Tour not found.";
+                    serviceResponse.Success = false;
+                    return serviceResponse;
+                }
+                if (traveler.favoriteTours == null)
+                {
+                    traveler.favoriteTours = new List<Tour>();
+                }  
+                if(traveler.favoriteTours.Any(c => c.tourId == tourId)){
+                    serviceResponse.Message = "This traveler already has this tour in favorites.";
+                    serviceResponse.Success = false;
+                    return serviceResponse;
+                }
+                traveler.favoriteTours.Add(tour);
+                await _context.SaveChangesAsync();
+                serviceResponse.Data = traveler.favoriteTours.Select(c => _mapper.Map<GetTourDto>(c)).ToList();
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Message = $"Error adding Tour to Traveler: {ex.Message}\n{ex.StackTrace}";
+                serviceResponse.Success = false;
+            }
+            return serviceResponse;
+        }*/
 
         public async Task<ServiceResponse<List<GetTravelerDto>>> GetAllTravelers()
         {
@@ -243,14 +301,23 @@ namespace hermesTour.Services.TravelerService
             var serviceResponse = new ServiceResponse<List<GetTourDto>>();
             try
             {
-                var traveler = await _context.Travelers.FirstOrDefaultAsync(c => c.travelerId == travelerId);
-                var tour = await _context.Tours.FirstOrDefaultAsync(c => c.tourId == tourId);
+                var traveler = await _context.Travelers
+            .Include(t => t.Tours)
+            .FirstOrDefaultAsync(c => c.travelerId == travelerId);
+
+        var tour = await _context.Tours
+            .Include(t => t.TravelerList)
+            .FirstOrDefaultAsync(c => c.tourId == tourId);
+
                 if (traveler is null || tour is null)
                 {
                     serviceResponse.Message = "Traveler or Tour not found.";
                     serviceResponse.Success = false;
                     return serviceResponse;
                 }
+                // Kontrol et ve koleksiyonları başlat
+                traveler.Tours ??= new List<Tour>();
+                tour.TravelerList ??= new List<traveler>();
                 if (!traveler.Tours.Any(c => c.tourId == tourId))
                 {
                     serviceResponse.Message = "This traveler doesn't have this tour.";
@@ -266,7 +333,7 @@ namespace hermesTour.Services.TravelerService
             }
             catch (Exception ex)
             {
-                serviceResponse.Message = $"Error deleting Tour from Traveler: {ex.Message}";
+                serviceResponse.Message = $"Error deleting Tour from Traveler: {ex.Message} \n {ex.StackTrace}";
                 serviceResponse.Success = false;
             }
             return serviceResponse;

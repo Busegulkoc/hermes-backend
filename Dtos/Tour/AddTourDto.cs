@@ -12,8 +12,8 @@ namespace hermesTour.Dtos.Tour
         public string name { get; set; } 
         public int rating { get; set; }
         public int price { get; set; }
-        public List<CityCountryDto> CityCountryList { get; set; } 
-        public List<TransportationVehicleDto> TransportationVehicleList { get; set; }
-        public List<HotelDto> HotelList { get; set; }
+        public List<int> cityCountryIdList { get; set; } 
+        public List<int> TransportationVehicleIdList { get; set; }
+        public List<int> HotelIdList { get; set; }
     }
 }

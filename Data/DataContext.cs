@@ -22,5 +22,17 @@ namespace hermesTour.Data
         public DbSet<TransportationWorkers> TransportationWorkers => Set<TransportationWorkers>();
         
 
+        /*protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<traveler>()
+                .HasMany(t => t.Tours)
+                .WithMany()
+                .UsingEntity(j => j.ToTable("TravelerTours"));
+
+            modelBuilder.Entity<traveler>()
+                .HasMany(t => t.favoriteTours)
+                .WithMany()
+                .UsingEntity(j => j.ToTable("TravelerFavoriteTours"));
+        }*/
     }
 }

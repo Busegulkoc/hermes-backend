@@ -21,6 +21,11 @@ namespace hermesTour.Services.ManagerService
             var serviceResponse = new ServiceResponse<List<GetManagerDto>>();
             var manager = _mapper.Map<Manager>(newManager);
             _context.Manager.Add(manager);
+
+           /* var ccId = newManager.cityCountryId;
+            var cc = await _context.CityCountry.FirstOrDefaultAsync(c => c.cityCountryId == ccId);
+            cc.manager = manager;*/
+
             await _context.SaveChangesAsync();
             serviceResponse.Data = await _context.Manager.Select(c => _mapper.Map<GetManagerDto>(c)).ToListAsync();
             return serviceResponse;

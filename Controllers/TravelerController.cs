@@ -19,17 +19,30 @@ namespace hermesTour.Controllers
 
         [HttpGet("GetAll")]
         public async Task<ActionResult<ServiceResponse<List<GetTravelerDto>>>> Get(){
-            return Ok(await _travelerService.GetAllTravelers());
+            var response = await _travelerService.GetAllTravelers();
+            if(response.Data is null){
+                return NotFound(response);
+            }
+            return Ok(response);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<ServiceResponse<GetTravelerDto>>> GetSingle(int id){
-            return Ok(await _travelerService.GetTravelerById(id));
+            var response = await _travelerService.GetTravelerById(id);
+            if(response.Data is null){
+                return NotFound(response);
+            }
+            return Ok(response);
         }
         [HttpGet("by-email-password")]
         public async Task<ActionResult<ServiceResponse<GetTravelerDto>>> GetSingleByEmailAndPassword(string email, string password)
         {
-            return Ok(await _travelerService.GetTravelerByEmailAndPassword(email, password));
+            var response = await _travelerService.GetTravelerByEmailAndPassword(email, password);
+            if (response.Data is null)
+            {
+                return NotFound(response);
+            }
+            return Ok(response);
         }
         [HttpGet("tour-by-travelerid")]
         public async Task<ActionResult<ServiceResponse<List<GetTourDto>>>> GetTourByTravelerId(int id)
@@ -54,7 +67,11 @@ namespace hermesTour.Controllers
 
         [HttpPost]
         public async Task<ActionResult<ServiceResponse<List<GetTravelerDto>>>> AddTraveler(AddTravelerDto newTraveler){
-            return Ok(await _travelerService.AddTraveler(newTraveler));
+            var response = await _travelerService.AddTraveler(newTraveler);
+            if(response.Data is null){
+                return NotFound(response);
+            }
+            return Ok(response);
         }
         [HttpPost("add-Tour")]
         public async Task<ActionResult<ServiceResponse<List<GetTravelerDto>>>> AddTourToTraveler(int travelerId, int tourId)
@@ -66,6 +83,16 @@ namespace hermesTour.Controllers
             }
              return Ok(response);
         }
+        /*[HttpPost("add-favorite-tour")]
+        public async Task<ActionResult<ServiceResponse<List<GetTourDto>>>> AddFavoriteTourToTraveler(int travelerId, int tourId)
+        {
+            var response = await _travelerService.AddFavoriteTourToTraveler(travelerId, tourId);
+            if (response.Data is null)
+            {
+                return NotFound(response);
+            }
+            return Ok(response);
+        }*/
 
         [HttpPut]
         public async Task<ActionResult<ServiceResponse<List<GetTravelerDto>>>> UpdateTraveler(UpdateTravelerDto updatedTraveler){

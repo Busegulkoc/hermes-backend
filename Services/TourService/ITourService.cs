@@ -14,8 +14,10 @@ namespace hermesTour.Services.TourService
         Task<ServiceResponse<List<GetCityCountryDto>>> GetCityCountryByTourId(int id);
         Task<ServiceResponse<List<GetTransportationVehicleDto>>> GetTransportationVehicleByTourId(int id);
         Task<ServiceResponse<List<GetHotelDto>>> GetHotelByTourId(int id);
+        Task<ServiceResponse<List<GetTourDto>>> GetTourByCityDatePeopleNumber(string city, DateTime date, int peopleNumber);
         Task<ServiceResponse<List<GetTourDto>>> AddTour( AddTourDto newTour);
         Task<ServiceResponse<GetTourDto>> UpdateTour(UpdateTourDto updatedTour);
+        Task<ServiceResponse<GetTourDto>> UpdateTourDescription(int id, string description);
         Task<ServiceResponse<List<GetTourDto>>> DeleteTour(int id);
         Task<ServiceResponse<List<GetTourDto>>> GetTourByCity(string city);
         Task<ServiceResponse<List<GetTourDto>>> GetTourByPrice(int price);

@@ -37,6 +37,7 @@ namespace hermesTour.Services.CommentService
                     response.Success = false;
                     return response;
                 }
+
                 comment.traveler = traveler;
                 comment.tour = tour;
                 _context.Comments.Add(comment);
@@ -49,6 +50,18 @@ namespace hermesTour.Services.CommentService
                 if (traveler.Comments == null)
                 {
                     traveler.Comments = new List<Comment>();
+                }
+                if (tour.CommentList.Contains(comment))
+                {
+                    response.Message = "Comment already exists.";
+                    response.Success = false;
+                    return response;
+                }
+                if (traveler.Comments.Contains(comment))
+                {
+                    response.Message = "Comment already exists.";
+                    response.Success = false;
+                    return response;
                 }
                 tour.CommentList.Add(comment);
                 traveler.Comments.Add(comment);

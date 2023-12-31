@@ -17,7 +17,11 @@ namespace hermesTour.Controllers
 
         [HttpGet("GetAll")]
         public async Task<ActionResult<ServiceResponse<List<GetTourDto>>>> Get(){
-            return Ok(await _tourService.GetAllTours());
+            var response = await _tourService.GetAllTours();
+            if(response.Data is null){
+                return NotFound(response);
+            }
+            return Ok(response);
         }
         
         [HttpGet("getTourByCity")]
@@ -55,7 +59,11 @@ namespace hermesTour.Controllers
         
         [HttpGet("{id}")]
         public async Task<ActionResult<ServiceResponse<GetTourDto>>> GetSingle(int id){
-            return Ok(await _tourService.GetTourById(id));
+            var response = await _tourService.GetTourById(id);
+            if(response.Data is null){
+                return NotFound(response);
+            }
+            return Ok(response);
         }
         [HttpGet("traveler-by-tourid")]
         public async Task<ActionResult<ServiceResponse<List<GetTravelerDto>>>> GetTravelerByTourId(int id)
@@ -107,10 +115,24 @@ namespace hermesTour.Controllers
             }
             return Ok(response);
         }
+        [HttpGet("tour-by-city-date-peoplenumber")]
+        public async Task<ActionResult<ServiceResponse<List<GetTourDto>>>> GetTourByCityDatePeopleNumber(string city, DateTime date, int peopleNumber)
+        {
+            var response = await   _tourService.GetTourByCityDatePeopleNumber(city, date, peopleNumber);
+            if (response.Data is null)
+            {
+                return NotFound(response);
+            }
+            return Ok(response);
+        }
         
         [HttpPost]
         public async Task<ActionResult<ServiceResponse<List<GetTourDto>>>> AddTour(AddTourDto newTour){
-            return Ok(await _tourService.AddTour(newTour));
+            var response = await _tourService.AddTour(newTour);
+            if(response.Data is null){
+                return NotFound(response);
+            }   
+            return Ok(response);
         }
 
         [HttpPut]
@@ -119,7 +141,14 @@ namespace hermesTour.Controllers
             if(response.Data is null){
                 return NotFound(response);
             }
-           
+            return Ok(response);
+        }
+        [HttpPut("update-tour-description")]
+        public async Task<ActionResult<ServiceResponse<GetTourDto>>> UpdateTourDescription(int id, string description){
+            var response = await _tourService.UpdateTourDescription(id, description);
+            if(response.Data is null){
+                return NotFound(response);
+            }
             return Ok(response);
         }
         

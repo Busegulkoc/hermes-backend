@@ -14,6 +14,7 @@ namespace hermesTour.Services.TravelerService
         Task<ServiceResponse<List<GetCommentDto>>> GetCommentByTravelerId(int id);
         Task<ServiceResponse<List<GetTravelerDto>>> AddTraveler( AddTravelerDto newTraveler);
         Task<ServiceResponse<List<GetTravelerDto>>> AddTourToTraveler(int travelerId, int tourId);
+        //Task<ServiceResponse<List<GetTourDto>>> AddFavoriteTourToTraveler(int travelerId, int tourId);
         Task<ServiceResponse<GetTravelerDto>> UpdateTraveler(UpdateTravelerDto updatedTraveler);
         Task<ServiceResponse<GetTravelerDto>> UpdateTravelerWallet(int id, int wallet);
         Task<ServiceResponse<List<GetTravelerDto>>> DeleteTraveler(int id);

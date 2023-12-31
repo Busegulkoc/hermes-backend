@@ -45,9 +45,9 @@ namespace hermesTour.Services.CityCountryService
             {
                 var cityCountry = await _context.CityCountry.ToListAsync();
                 var getCityCountryDtoList =  _mapper.Map<List<GetCityCountryDto>>(cityCountry);
-                for(int i = 0; i < cityCountry.Count; i++){
+                /*for(int i = 0; i < cityCountry.Count; i++){
                     getCityCountryDtoList[i].managerId = cityCountry[i].manager.managerId;
-                }
+                }*/
                 response.Data = getCityCountryDtoList;
                 response.Success = true;
                 return response;

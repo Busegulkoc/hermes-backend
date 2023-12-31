@@ -31,13 +31,8 @@ namespace hermesTour.Services.TravelerService
             var serviceResponse = new ServiceResponse<List<GetTravelerDto>>();
             try
             {
-                 var traveler = await _context.Travelers
-            .Include(t => t.Tours)
-            .FirstOrDefaultAsync(c => c.travelerId == travelerId);
-
-        var tour = await _context.Tours
-            .Include(t => t.TravelerList)
-            .FirstOrDefaultAsync(c => c.tourId == tourId);
+                var traveler = await _context.Travelers.Include(t => t.Tours).FirstOrDefaultAsync(c => c.travelerId == travelerId);
+                var tour = await _context.Tours.Include(t => t.TravelerList).FirstOrDefaultAsync(c => c.tourId == tourId);
 
                 if (traveler is null || tour is null)
 

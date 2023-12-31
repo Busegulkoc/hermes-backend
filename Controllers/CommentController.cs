@@ -17,17 +17,29 @@ namespace hermesTour.Controllers
 
         [HttpGet("GetAll")]
         public async Task<ActionResult<ServiceResponse<List<GetCommentDto>>>> Get(){
-            return Ok(await _commentService.GetAllComments());
+            var response = await _commentService.GetAllComments();
+            if(response.Data is null){
+                return NotFound(response);
+            }
+            return Ok(response);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<ServiceResponse<GetCommentDto>>> GetSingle(int id){
-            return Ok(await _commentService.GetCommentById(id));
+            var response = await _commentService.GetCommentById(id);
+            if(response.Data is null){
+                return NotFound(response);
+            }
+            return Ok(response);        
         }
 
         [HttpPost]
         public async Task<ActionResult<ServiceResponse<List<GetCommentDto>>>> AddComment(AddCommentDto newComment){
-            return Ok(await _commentService.AddComment(newComment));
+            var response = await _commentService.AddComment(newComment);
+            if(response.Data is null){
+                return NotFound(response);
+            }
+            return Ok(response);    
         }
 
         [HttpPut]

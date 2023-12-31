@@ -23,8 +23,14 @@ namespace hermesTour.Services.CommentService
             try
             {
                 var comment = _mapper.Map<Comment>(newComment);
-                var traveler = _context.Travelers.FirstOrDefault(t => t.travelerId == newComment.travelerId);
-                var tour = _context.Tours.FirstOrDefault(t => t.tourId == newComment.tourId);
+                var traveler = await _context.Travelers
+                .Include(t => t.Tours)      // Tours ilişkisi için eager loading
+                .Include(c => c.Comments)   // Comments ilişkisi için eager loading
+                .FirstOrDefaultAsync(c => c.travelerId == newComment.travelerId);
+                var tour = await _context.Tours
+                .Include(t => t.CommentList)
+                .Include(t => t.TravelerList)
+                .FirstOrDefaultAsync(c => c.tourId == newComment.tourId);
                 if (traveler == null)
                 {
                     response.Message = "Traveler not found.";
@@ -38,11 +44,7 @@ namespace hermesTour.Services.CommentService
                     return response;
                 }
 
-                comment.traveler = traveler;
-                comment.tour = tour;
-                _context.Comments.Add(comment);
-
-                  //tour un ve traveler ın comment listelerine de bu commenti ekliyoruz:
+                //tour un ve traveler ın comment listelerine de bu commenti ekliyoruz:
                 if (tour.CommentList == null)
                 {
                     tour.CommentList = new List<Comment>();
@@ -51,18 +53,37 @@ namespace hermesTour.Services.CommentService
                 {
                     traveler.Comments = new List<Comment>();
                 }
-                if (tour.CommentList.Contains(comment))
+                if(traveler.Tours == null)
                 {
-                    response.Message = "Comment already exists.";
+                    response.Message = "Traveler has not joined any tour.";
+                    response.Success = false;
+                    return response;
+                }   
+                if( (traveler.Tours.FirstOrDefault(t => t.tourId == tour.tourId) == null))
+                {
+                    response.Message = "Traveler has not joined this tour.";
                     response.Success = false;
                     return response;
                 }
-                if (traveler.Comments.Contains(comment))
+                if (tour.CommentList != null && tour.CommentList.Any(c => c.commentText == comment.commentText && c.travelerId == comment.travelerId))
                 {
-                    response.Message = "Comment already exists.";
+                    response.Message = "Comment already exists for this tour.";
                     response.Success = false;
                     return response;
                 }
+
+                if (traveler.Comments != null && traveler.Comments.Any(c => c.commentText == comment.commentText && c.tourId == comment.tourId))
+                {
+                    response.Message = "Comment already exists for this traveler.";
+                    response.Success = false;
+                    return response;
+                }
+                
+                comment.traveler = traveler;
+                comment.tour = tour;
+                _context.Comments.Add(comment);
+
+
                 tour.CommentList.Add(comment);
                 traveler.Comments.Add(comment);
 
@@ -75,7 +96,7 @@ namespace hermesTour.Services.CommentService
             }
             catch (Exception ex)
             {
-                response.Message = $"Error adding comment: {ex.Message}";
+                response.Message = $"Error adding comment: {ex.Message} \n{ex.StackTrace}";
                 response.Success = false;
                 return response;
             }

@@ -21,7 +21,7 @@ namespace hermesTour.Models
         public Boolean vip { get; set; }
         public Boolean visa { get; set; }
         public List<Tour> Tours { get; set; }
-       // public List<Tour> favoriteTours { get; set; }
+        public List<Tour> favoriteTours { get; set; }
         public List<Comment> Comments { get; set; }
 
     }

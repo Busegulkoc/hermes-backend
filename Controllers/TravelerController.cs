@@ -54,6 +54,16 @@ namespace hermesTour.Controllers
             }
             return Ok(response);
         }
+        [HttpGet("favorite-tour-by-travelerid")]
+        public async Task<ActionResult<ServiceResponse<List<GetTourDto>>>> GetFavoriteTourByTravelerId(int id)
+        {
+            var response = await _travelerService.GetFavoriteTourByTravelerId(id);
+            if (response.Data is null)
+            {
+                return NotFound(response);
+            }
+            return Ok(response);
+        }
         [HttpGet("comment-by-travelerid")]
         public async Task<ActionResult<ServiceResponse<List<GetCommentDto>>>> GetCommentByTravelerId(int id)
         {
@@ -83,7 +93,7 @@ namespace hermesTour.Controllers
             }
              return Ok(response);
         }
-        /*[HttpPost("add-favorite-tour")]
+        [HttpPost("add-favorite-tour")]
         public async Task<ActionResult<ServiceResponse<List<GetTourDto>>>> AddFavoriteTourToTraveler(int travelerId, int tourId)
         {
             var response = await _travelerService.AddFavoriteTourToTraveler(travelerId, tourId);
@@ -92,7 +102,7 @@ namespace hermesTour.Controllers
                 return NotFound(response);
             }
             return Ok(response);
-        }*/
+        }
 
         [HttpPut]
         public async Task<ActionResult<ServiceResponse<List<GetTravelerDto>>>> UpdateTraveler(UpdateTravelerDto updatedTraveler){
@@ -128,6 +138,16 @@ namespace hermesTour.Controllers
         public async Task<ActionResult<ServiceResponse<List<GetTourDto>>>> DeleteTourFromTraveler(int travelerId, int tourId)
         {
             var response = await _travelerService.DeleteTourFromTraveler(travelerId, tourId);
+            if (response.Data is null)
+            {
+                return NotFound(response);
+            }
+            return Ok(response);
+        }
+        [HttpDelete("delete-favorite-tour")]
+        public async Task<ActionResult<ServiceResponse<List<GetTourDto>>>> DeleteFavoriteTourFromTraveler(int travelerId, int tourId)
+        {
+            var response = await _travelerService.DeleteFavoriteTourFromTraveler(travelerId, tourId);
             if (response.Data is null)
             {
                 return NotFound(response);

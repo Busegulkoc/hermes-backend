@@ -12,6 +12,7 @@ namespace hermesTour.Services.TravelerService
         Task<ServiceResponse<GetTravelerDto>> GetTravelerByEmailAndPassword(string email, string password);
         Task<ServiceResponse<List<GetTourDto>>> GetTourByTravelerId(int id);
         Task<ServiceResponse<List<GetTourDto>>> GetFavoriteTourByTravelerId(int id);
+        Task<ServiceResponse<GetTourDto>> GetFavTourByTravelerId (int id, int tourId);
         Task<ServiceResponse<List<GetCommentDto>>> GetCommentByTravelerId(int id);
         Task<ServiceResponse<List<GetTravelerDto>>> AddTraveler( AddTravelerDto newTraveler);
         Task<ServiceResponse<List<GetTravelerDto>>> AddTourToTraveler(int travelerId, int tourId);

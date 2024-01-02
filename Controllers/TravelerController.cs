@@ -64,6 +64,16 @@ namespace hermesTour.Controllers
             }
             return Ok(response);
         }
+        [HttpGet("fav-tour-by-travelerid")]
+        public async Task<ActionResult<ServiceResponse<GetTourDto>>> GetFavTourByTravelerId(int id, int tourId)
+        {
+            var response = await _travelerService.GetFavTourByTravelerId(id, tourId);
+            if (response.Data is null)
+            {
+                return NotFound(response);
+            }
+            return Ok(response);
+        }
         [HttpGet("comment-by-travelerid")]
         public async Task<ActionResult<ServiceResponse<List<GetCommentDto>>>> GetCommentByTravelerId(int id)
         {

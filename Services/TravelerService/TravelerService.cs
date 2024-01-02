@@ -32,8 +32,10 @@ namespace hermesTour.Services.TravelerService
             try
             {
                 var traveler = await _context.Travelers.Include(t => t.Tours).FirstOrDefaultAsync(c => c.travelerId == travelerId);
-                var tour = await _context.Tours.Include(t => t.TravelerList).FirstOrDefaultAsync(c => c.tourId == tourId);
-
+                var tour = await _context.Tours
+                    .Include(t => t.TravelerList)
+                    .Include(t => t.TransportationVehicleList)  // TransportationVehicleList'i include et
+                    .FirstOrDefaultAsync(c => c.tourId == tourId);
                 if (traveler is null || tour is null)
 
                 {
@@ -48,11 +50,16 @@ namespace hermesTour.Services.TravelerService
                     tour.TravelerList = new List<traveler>();
                 }
                if (traveler.Tours.Any(c => c.tourId == tourId))
-        {
-            serviceResponse.Message = "This traveler already has this tour.";
-            serviceResponse.Success = false;
-            return serviceResponse;
-        }
+                {
+                    serviceResponse.Message = "This traveler already has this tour.";
+                    serviceResponse.Success = false;
+                    return serviceResponse;
+                }
+                if(tour.TransportationVehicleList.First().capacity < tour.TravelerList.Count + 1){
+                    serviceResponse.Message = "Not enough capacity in this tour.";
+                    serviceResponse.Success = false;
+                    return serviceResponse;
+                }
                 traveler.Tours.Add(tour);
                // traveler.wallet -= tour.price;
                 tour.TravelerList.Add(traveler);
@@ -185,6 +192,29 @@ namespace hermesTour.Services.TravelerService
                 }
                 var dbTours = await _context.Travelers.Where(c => c.travelerId == id).SelectMany(c => c.favoriteTours).ToListAsync();
                 serviceResponse.Data = dbTours.Select(c => _mapper.Map<GetTourDto>(c)).ToList();
+                return serviceResponse;
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Message = $"Error getting tours: {ex.Message}";
+                serviceResponse.Success = false;
+                return serviceResponse;
+            }
+        }
+        public async Task<ServiceResponse<GetTourDto>> GetFavTourByTravelerId(int id, int tourId)
+        {
+            var serviceResponse = new ServiceResponse<GetTourDto>();
+            try
+            {
+                var dbTraveler = await _context.Travelers.FirstOrDefaultAsync(c => c.travelerId == id);
+                if (dbTraveler == null)
+                {
+                    serviceResponse.Message = "Traveler not found. You need to sign in.";
+                    serviceResponse.Success = false;
+                    return serviceResponse;
+                }
+                var dbTours = await _context.Travelers.Where(c => c.travelerId == id).SelectMany(c => c.favoriteTours).ToListAsync();
+                serviceResponse.Data = dbTours.Select(c => _mapper.Map<GetTourDto>(c)).FirstOrDefault(c => c.tourId == tourId);
                 return serviceResponse;
             }
             catch (Exception ex)
@@ -367,7 +397,7 @@ namespace hermesTour.Services.TravelerService
             var tour = await _context.Tours
             .Include(t => t.TravelerList)
             .FirstOrDefaultAsync(c => c.tourId == tourId);
-
+ 
                 if (traveler is null || tour is null)
                 {
                     serviceResponse.Message = "Traveler or Tour not found.";
